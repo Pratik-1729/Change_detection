@@ -221,3 +221,6 @@ __marimo__/
 datasets/
 # Ignore all PNG files anywhere
 *.png
+
+# python env
+.venv/
