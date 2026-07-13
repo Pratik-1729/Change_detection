@@ -1,0 +1,14 @@
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATASET_DIR = PROJECT_ROOT/"datasets"
+LOVEDA_DIR = DATASET_DIR / "LoveDA"
+LEVIR_PATH = DATASET_DIR /"LEVIR-CD"
+OUTPUT_DIR = PROJECT_ROOT / "outputs"
+MODEL_DIR = PROJECT_ROOT / "models"
+REPORT_DIR = PROJECT_ROOT / "reports"
+BATCH_SIZE = 4
+NUM_WORKERS = 2
+RANDOM_SEED = 42
+NUM_CLASSES = 5
+IMAGE_SIZE = (1024,1024)
