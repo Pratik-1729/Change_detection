@@ -2,7 +2,7 @@ from pathlib import Path
 
 LOVEDA_CONFIG ={
     "name":"LoveDA",
-    "root" : Path("datastes/LoveDA"),
+    "root" : Path("datasets/LoveDA"),
     "processed_root": Path("datasets/processed/LoveDA"),
     "splits":[
         "Train",
