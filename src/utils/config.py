@@ -5,7 +5,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATASET_DIR = PROJECT_ROOT/"datasets"
 LOVEDA_DIR = DATASET_DIR / "LoveDA"
 LEVIR_PATH = DATASET_DIR /"LEVIR-CD"
-CHECKPOINT_DIR = PROJECT_ROOT/"chechkpoints"
+CHECKPOINT_DIR = PROJECT_ROOT/"checkpoints"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 LOG_DIR = PROJECT_ROOT/"logs"
@@ -14,13 +14,7 @@ PROCESSED_DATASET = DATASET_DIR/ "processed"
 
 
 NUM_CLASSES = 5
-CLASS_NAMES = [
-    "Background",
-    "Building",
-    "Road",
-    "Vegetation",
-    "Water"
-]
+from src.utils.constants import CLASS_NAMES
 IMAGE_TILE_SIZE = 512
 
 

@@ -1,10 +1,13 @@
 from pathlib import Path
+import logging
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from PIL import Image
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 from src.data.class_mapping import remap_mask
 from src.utils.config import LOVEDA_DIR
@@ -15,11 +18,11 @@ def verify_folder(folder_path : Path) -> dict[str,int]:
     image_files = sorted(list(image_folder.glob("*.png")))
     mask_files = sorted(list(mask_folder.glob("*.png")))
     
-    print(f"\n checking Folder : {folder_path.name}")
-    print("="* 60)
+    logger.info("Checking folder: %s", folder_path.name)
+    logger.info("%s", "="* 60)
 
-    print(f"Images: {len(image_files)}")
-    print(f"masks: {len(mask_files)}")
+    logger.info("Images: %s", len(image_files))
+    logger.info("Masks: %s", len(mask_files))
 
     if len(image_files) != len(mask_files) :
         raise ValueError(
@@ -34,27 +37,26 @@ def verify_folder(folder_path : Path) -> dict[str,int]:
             mask = np.array(Image.open(mask_path))
 
         except Exception as e:
-            print(f"Cannot open : {image_path.name}")
-            print(e)
+            logger.exception("Cannot open: %s", image_path.name)
 
             corrupted += 1
             continue
 
         if image.shape[:2] != mask.shape[:2]:
-            print(f"Shape Mismatch : {image_path.name}")
-            mismatched+=1
+            logger.warning("Shape mismatch: %s", image_path.name)
+            mismatched += 1
 
             remapped_mask = remap_mask(mask)
             labels = set(np.unique(remapped_mask))
 
             if not labels.issubset(VALID_CLASSES):
-                print(f"Invalid labels found in {mask_path.name}")
-    print()
+                logger.warning("Invalid labels found in %s", mask_path.name)
+    logger.info("")
 
-    print("Folder Verification Complete")
-    print(f"corrupted files: {corrupted}")
-    print(f"Mismatched Files: {mismatched}")
-    print()
+    logger.info("Folder Verification Complete")
+    logger.info("corrupted files: %s", corrupted)
+    logger.info("Mismatched Files: %s", mismatched)
+    logger.info("")
     return{
         "images" : len(image_files),
         "corrupted" : corrupted,
@@ -63,10 +65,10 @@ def verify_folder(folder_path : Path) -> dict[str,int]:
 
 def verify_split(split_name:str) -> None:
     
-    print("\n")
-    print("="*60)
-    print(f"{split_name.upper()} DATASET")
-    print("="*60)
+    logger.info("\n")
+    logger.info("%s", "="*60)
+    logger.info("%s DATASET", split_name.upper())
+    logger.info("%s", "="*60)
     split_path = LOVEDA_DIR/ split_name
 
     total_images = 0
@@ -81,13 +83,13 @@ def verify_split(split_name:str) -> None:
         total_images += result["images"]
         total_corrupted += result["corrupted"]
         total_mismatched += result["mismatched"]
-    print("="*60)
-    print(f"{split_name.upper()} SUMMARY")
-    print("="*60)
-    print(f"Total_Images      : {total_images}")
-    print(f"Total_corrupted      : {total_corrupted}")
-    print(f"Total_mismatched      : {total_mismatched}")
-    print("="*60)
+    logger.info("%s", "="*60)
+    logger.info("%s SUMMARY", split_name.upper())
+    logger.info("%s", "="*60)
+    logger.info("Total_Images      : %s", total_images)
+    logger.info("Total_corrupted   : %s", total_corrupted)
+    logger.info("Total_mismatched  : %s", total_mismatched)
+    logger.info("%s", "="*60)
 
 def main() -> None:
     verify_split("Train")

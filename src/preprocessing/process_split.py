@@ -1,8 +1,11 @@
 import time
 from pathlib import Path
 from typing import List
+import logging
 import sys
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -29,7 +32,7 @@ def process_region(
     output_mask_dir = output_root/split.lower()/"masks"
 
     image_paths = sorted(image_dir.glob("*.png"))
-    print(f"\n processing {split} - {region}")
+    logger.info("Processing %s - %s", split, region)
 
     for image_path in tqdm(image_paths):
         mask_path = mask_dir/image_path.name
@@ -85,13 +88,13 @@ def process_split(dataset_name: str,
         processing_time = end_time - start_time,
 
     )
-    print("\n" + "=" * 60)
-    print(f"{split.upper()} SUMMARY")
-    print("="*60)
-    print(f"Image Processed:{summary.total_images}")
-    print(f"Tiles generated:{summary.total_tiles}")
-    print(f"Processing Time:{summary.processing_time:.2f} seconds")
-    print("="*60)
+    logger.info("%s", "\n" + "=" * 60)
+    logger.info("%s SUMMARY", split.upper())
+    logger.info("%s", "="*60)
+    logger.info("Image Processed: %s", summary.total_images)
+    logger.info("Tiles generated: %s", summary.total_tiles)
+    logger.info("Processing Time: %.2f seconds", summary.processing_time)
+    logger.info("%s", "="*60)
 
     return summary, all_metadata
 

@@ -1,9 +1,12 @@
 import json
 from datetime import datetime
 from pathlib import Path
+import logging
 
 import pandas as pd
 import sys
+
+logger = logging.getLogger(__name__)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.preprocessing.process_split import process_split
@@ -11,7 +14,7 @@ from src.utils.dataset_config import LOVEDA_CONFIG
 
 
 def create_output_directories(root: Path) -> None:
-    """
+    """  
     Create processed dataset directories.
     """
 
@@ -32,14 +35,14 @@ def save_metadata(metadata_records, output_path: Path) -> None:
     """
 
     if len(metadata_records) == 0:
-        print("No metadata to save.")
+        logger.warning("No metadata to save.")
         return
 
     metadata = pd.DataFrame(metadata_records)
 
     metadata.to_csv(output_path, index=False)
 
-    print(f"\nMetadata saved to:\n{output_path}")
+    logger.info("Metadata saved to: %s", output_path)
 
 
 def save_summary(
@@ -81,14 +84,14 @@ def save_summary(
 
         json.dump(summary, file, indent=4)
 
-    print(f"\nSummary saved to:\n{output_path}")
+    logger.info("Summary saved to: %s", output_path)
 
 
 def main():
 
-    print("=" * 70)
-    print("LoveDA Dataset Preprocessing")
-    print("=" * 70)
+    logger.info("%s", "=" * 70)
+    logger.info("LoveDA Dataset Preprocessing")
+    logger.info("%s", "=" * 70)
 
     config = LOVEDA_CONFIG
 
@@ -142,10 +145,10 @@ def main():
         output_root / "preprocessing_summary.json",
     )
 
-    print("\n")
-    print("=" * 70)
-    print("PREPROCESSING COMPLETED SUCCESSFULLY")
-    print("=" * 70)
+    logger.info("\n")
+    logger.info("%s", "=" * 70)
+    logger.info("PREPROCESSING COMPLETED SUCCESSFULLY")
+    logger.info("%s", "=" * 70)
 
 
 if __name__ == "__main__":

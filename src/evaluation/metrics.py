@@ -37,26 +37,55 @@ class SegmentationMetrics:
 
     def compute(self):
         cm = self.confusion_matrix.float()
-        diagonal = torch.diag(cm)
-        total = cm.sum()
 
-        pixel_accuracy = (diagonal.sum() / total).item()
-        union = (cm.sum(1) + cm.sum(0) - diagonal)
+        eps = 1e-7
+       
+        tp = torch.diag(cm)
 
-        iou = diagonal/(union + 1e-7)
-        mean_iou = iou.mean().item()
+        fp = cm.sum(dim=0) - tp
 
-        dice = (2 * diagonal ) / (cm.sum(1) + cm.sum(0) + 1e-7)
-        mean_dice = dice.mean().item()
+        fn = cm.sum(dim=1) - tp
+
+        tn = cm.sum() - (tp + fp + fn)
+
+        pixel_accuracy = tp.sum() / (cm.sum() + eps)
+
+        precision = tp/(tp + fp + eps)
+        recall = tp / (tp + fn + eps)
+        f1 = (2*precision*recall) / (precision + recall + eps)
+
+        iou = tp / (tp + fp + fn + eps)
+        dice = (2 * tp ) / (2 * tp + fp + fn + eps)
+        support = cm.sum(dim=1)
 
 
         return{
-        "pixel_accuracy": pixel_accuracy,
-        "miou":mean_iou,
-        "dice":mean_dice,
+        "pixel_accuracy": pixel_accuracy.item(),
+        "precision" : precision.mean().item(),
+        "f1_score" : f1.mean().item(),
+        "recall" : recall.mean().item(),
+        "miou" : iou.mean().item(),
+        "dice" : dice.mean().item(),
+
         "per_class_iou": iou.tolist(),
+        "per_class_precision" : precision.tolist(),
+        "per_class_recall" : recall.tolist(),
+        "per_class_dice" : dice.tolist(),
+        "support": support.tolist(),
+        "confusion_matrix" : cm.cpu().numpy(),
     
 }
+
+
+def evaluate_one_batch(
+        logits: torch.Tensor,
+        targets: torch.Tensor,
+        num_classes: int,
+):
+    predictions = torch.argmax(logits, dim=1)
+    metrics = SegmentationMetrics(num_classes)
+    metrics.update(predictions, targets)
+    return metrics.compute()
 
 '''
 def pixel_accuracy(

@@ -13,10 +13,15 @@ from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 
 from src.evaluation.metrics import SegmentationMetrics
+from src.evaluation.plots import plot_training_history
+from src.utils.config import OUTPUT_DIR
 from src.utils.config import(
     CHECKPOINT_DIR,
     NUM_CLASSES,
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Trainer:
     def __init__(
@@ -63,14 +68,14 @@ class Trainer:
               parents=True,
               exist_ok=True,
          )
-         print("="*60)
-         print("Trainer Initialized")
-         print("="*60)
-         print(f"Device         :{self.device}")
-         print(f"classes         :{self.num_classes}")
-         print(f"Train Batches         :{len(self.train_loader)}")
-         print(f"val_batches         :{len(self.val_loader)}")
-         print("="*60)
+         logger.info("%s", "="*60)
+         logger.info("Trainer Initialized")
+         logger.info("%s", "="*60)
+         logger.info("Device         :%s", self.device)
+         logger.info("classes         :%s", self.num_classes)
+         logger.info("Train Batches         :%s", len(self.train_loader))
+         logger.info("val_batches         :%s", len(self.val_loader))
+         logger.info("%s", "="*60)
 
     def train_one_epoch(self) -> Dict[str,float]:
          self.model.train()
@@ -95,7 +100,7 @@ class Trainer:
               )
               loss = outputs.loss
               if i==0:
-                   print(f"\n first batch loss: {loss.item()}")
+                   logger.debug("first batch loss: %s", loss.item())
 
               loss.backward()
 
@@ -128,9 +133,9 @@ class Trainer:
          epoch_results["loss"] = (
                 running_loss / len(self.train_loader)
               )
-         print("\n runnning loss:",running_loss)
-         print("no of bathches: ",len(self.train_loader))
-         print("AVERAGE LOSS: ", running_loss/len(self.train_loader))
+         logger.info("running loss: %s", running_loss)
+         logger.info("no of batches: %s", len(self.train_loader))
+         logger.info("AVERAGE LOSS: %s", running_loss/len(self.train_loader))
 
          return epoch_results
     @torch.no_grad()
@@ -196,21 +201,20 @@ class Trainer:
               "optimizer_state_dict":self.optimizer.state_dict(),
               "best_miou": val_miou,
          }
-
          torch.save(
               checkpoint,
               self.checkpoint_dir/"best_model.pth",
          )
-         print("\n Best model saved")
+         logger.info("Best model saved to %s", str(self.checkpoint_dir/"best_model.pth"))
     
     def fit(
               self,
               epochs: int,
     ):
          for epoch in range(epochs):
-              print("\n" + "=" * 70)
-              print(f"Epoch{epoch + 1}/{epochs}")
-              print("=" * 70)
+              logger.info("%s", "\n" + "=" * 70)
+              logger.info("Epoch %s/%s", epoch + 1, epochs)
+              logger.info("%s", "=" * 70)
 
               train_results = self.train_one_epoch()
               val_results = self.validate_one_epoch()
@@ -231,30 +235,35 @@ class Trainer:
               self.history["train_pixel_accuracy"].append(train_results["pixel_accuracy"])
               self.history["val_pixel_accuracy"].append(val_results["pixel_accuracy"])
 
-              print(f"Train Loss : {train_results['loss']:.4f}")
-              print(f"val Loss : {val_results['loss']:.4f}")
+              logger.info("Train Loss : %.4f", train_results['loss'])
+              logger.info("val Loss : %.4f", val_results['loss'])
 
-              print(f"Train miou : {train_results['miou']:.4f}")
-              print(f"val miou : {val_results['miou']:.4f}")
+              logger.info("Train miou : %.4f", train_results['miou'])
+              logger.info("val miou : %.4f", val_results['miou'])
 
-              print(f"Train dice : {train_results['dice']:.4f}")
-              print(f"val dice : {val_results['dice']:.4f}")
+              logger.info("Train dice : %.4f", train_results['dice'])
+              logger.info("val dice : %.4f", val_results['dice'])
 
-              print(f"Train pixel_accuracy : {train_results['pixel_accuracy']:.4f}")
-              print(f"val pixel_accuracy : {val_results['pixel_accuracy']:.4f}")
+              logger.info("Train pixel_accuracy : %.4f", train_results['pixel_accuracy'])
+              logger.info("val pixel_accuracy : %.4f", val_results['pixel_accuracy'])
 
               if val_results["miou"] > self.best_miou:
                    self.best_miou = val_results["miou"]
+                   self.counter = 0
                    self.save_checkpoint(
                         epoch,
-                        self.best_miou,)
+                        self.best_miou,
+                   )
               else:
                    self.counter += 1
-                   print(f"no improvement"
-                         f"({self.counter}/{self.patience})")
+                   logger.info("no improvement (%s/%s)", self.counter, self.patience)
               if self.counter >= self.patience:
-                   print("\n Early stopping triggered.")
+                   logger.info("Early stopping triggered.")
                    break
+         plot_training_history(
+              history=self.history,
+              output_dir=OUTPUT_DIR/"training",
+         )
               
          return self.history
               

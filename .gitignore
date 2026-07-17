@@ -224,3 +224,17 @@ datasets/
 
 # python env
 .venv/
+
+# Project artifacts
+checkpoints/
+models/
+outputs/
+logs/
+
+# PyTorch model files
+*.pth
+*.pt
+
+# Ignore temporary notebook checkpoints and data
+.ipynb_checkpoints/
+temp_tiles/
