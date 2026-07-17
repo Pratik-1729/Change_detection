@@ -89,6 +89,8 @@ def save_summary(
 
 def main():
 
+    from src.utils.logging import configure_logging
+    configure_logging()
     logger.info("%s", "=" * 70)
     logger.info("LoveDA Dataset Preprocessing")
     logger.info("%s", "=" * 70)

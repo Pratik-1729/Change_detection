@@ -7,8 +7,10 @@ from src.inference.predictor import Predictor
 from src.inference.visualize import (plot_results,save_results,)
 
 from src.utils.config import PROCESSED_DATASET,CHECKPOINT_DIR
+from src.utils.logging import configure_logging
 
 def main():
+    configure_logging()
     image_path = (
         PROCESSED_DATASET/"LoveDA"/"val"/"images"/"LoveDA_Val_Urban_003516_tile_0.png"
     )

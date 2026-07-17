@@ -92,6 +92,9 @@ def verify_split(split_name:str) -> None:
     logger.info("%s", "="*60)
 
 def main() -> None:
+    from src.utils.logging import configure_logging
+    configure_logging()
+
     verify_split("Train")
     # verify_split("Test")
     verify_split("Val")

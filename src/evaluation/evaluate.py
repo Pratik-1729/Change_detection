@@ -30,6 +30,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from src.utils.logging import configure_logging
+
 class Evaluator:
     def __init__(self,
                  checkpoint_path:Path):
@@ -135,6 +137,8 @@ def print_results(results):
 
 
 def main():
+    # configure project logging once (can be controlled with LOG_LEVEL / LOG_FILE)
+    configure_logging()
 
     evaluator = Evaluator(
         checkpoint_path=CHECKPOINT_DIR/"best_model.pth"

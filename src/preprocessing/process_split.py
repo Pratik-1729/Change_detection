@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 from src.preprocessing.process_image import process_image
 from src.utils.types import DatasetSummary,ProcessResult,TileMetadata
+from src.utils.logging import configure_logging
 
 def process_region(
         dataset_name: str,
@@ -101,6 +102,8 @@ def process_split(dataset_name: str,
 if __name__ == "__main__":
     INPUT_ROOT = Path("datasets/LoveDA")
     OUTPUT_ROOT = Path("datasets/processed/LoveDA")
+
+    configure_logging()
 
     process_split(
         dataset_name="LoveDA",
