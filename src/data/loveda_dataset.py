@@ -12,6 +12,10 @@ class LoveDADataset(Dataset):
                  transform: None,):
         self.processed_root = Path(processed_root)
         self.split = split
+        if self.split.lower() == "train":
+            self.split = "Train"
+        elif self.split.lower() == "val":
+            self.split = "Val"
         self.transform = transform
         metadata = pd.read_csv(self.processed_root/"metadata.csv")
         self.metadata = metadata[metadata["split"]==split].reset_index(drop=True)
