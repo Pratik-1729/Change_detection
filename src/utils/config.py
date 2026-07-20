@@ -1,6 +1,8 @@
 from pathlib import Path
 import torch
+import os
 
+IS_KAGGLE = os.path.exists("/kaggle")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATASET_DIR = PROJECT_ROOT/"datasets"
 LOVEDA_DIR = DATASET_DIR / "LoveDA"
@@ -10,7 +12,20 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 LOG_DIR = PROJECT_ROOT/"logs"
 REPORT_DIR = PROJECT_ROOT / "reports"
-PROCESSED_DATASET = DATASET_DIR/ "processed"
+
+if IS_KAGGLE:
+    PROCESSED_DATASET = Path(
+        os.environ.get(
+            "PROCESSED_DATASET",
+            "/kaggle/input/datasets/pratgaiks1729/loveda-processed-tiles/processed/LoveDA",
+        )
+    )
+else:
+    PROCESSED_DATASET = Path(os.environ.get(
+            "PROCESSED_DATASET",
+            PROJECT_ROOT/"datasets"/"processed"/"LoveDA",
+        )
+    )
 
 
 NUM_CLASSES = 5
@@ -18,9 +33,24 @@ from src.utils.constants import CLASS_NAMES
 IMAGE_TILE_SIZE = 512
 
 
-BATCH_SIZE : int = 4
-NUM_WORKERS : int = 0
-EPOCHS = 50
+BATCH_SIZE : int = int(
+    os.environ.get(
+        "BATCH_SIZE",
+        8 if IS_KAGGLE else 2,
+    )
+)
+NUM_WORKERS : int = int(
+    os.environ.get(
+        "NUM_WORKERS",
+        2 if IS_KAGGLE else 0,
+    )
+)
+EPOCHS : int = int(
+    os.environ.get(
+        "EPOCHS",
+        50 if IS_KAGGLE else 2,
+    )
+)
 LEARNING_RATE = 6e-5
 WEIGHT_DECAY = 0.01
 RANDOM_SEED = 42
