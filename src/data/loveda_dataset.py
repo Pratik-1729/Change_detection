@@ -21,10 +21,10 @@ class LoveDADataset(Dataset):
         row = self.metadata.iloc[idx]
 
         image_path = (
-            self.processed_root/self.split.lower()/"images"/row["filename"]
+            self.processed_root/self.split/"images"/row["filename"]
         )
 
-        mask_path = (self.processed_root/self.split.lower()/"masks"/row["filename"])
+        mask_path = (self.processed_root/self.split/"masks"/row["filename"])
 
         image = cv2.imread(str(image_path))
         image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
