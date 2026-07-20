@@ -23,7 +23,10 @@ class LoveDADataset(Dataset):
         return len(self.metadata)
     def __getitem__(self, idx):
         row = self.metadata.iloc[idx]
-
+        if self.split.lower() == "train":
+            self.split = "Train"
+        elif self.split.lower() == "val":
+            self.split = "Val"
         image_path = (
             self.processed_root/self.split/"images"/row["filename"]
         )
