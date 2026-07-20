@@ -21,8 +21,8 @@ IMAGE_TILE_SIZE = 512
 BATCH_SIZE : int = 4
 NUM_WORKERS : int = 0
 EPOCHS = 50
-LEARNING_RATE = 1e-4
-WEIGHT_DECAY = 1e-4
+LEARNING_RATE = 6e-5
+WEIGHT_DECAY = 0.01
 RANDOM_SEED = 42
 
 
@@ -37,11 +37,8 @@ PRETRAINED = True
 SAVE_BEST_ONLY = True
 CHECKPOINT_NAME = "segformer_best.pth"
 
-DEVICE = torch.device(
-    "cuda"
-    if torch.cuda.is_available()
-    else "cpu"
-)
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 EXPERIMENT_NAME = "Segformer_B0_LoveDA"
 RUN_NAME = "Baseline"

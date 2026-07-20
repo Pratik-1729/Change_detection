@@ -1,12 +1,17 @@
-albumentations==2.0.8
-matplotlib==3.10.6
-numpy==2.3.5
-opencv-python==5.0.0.93
-opencv-python-headless==5.0.0.93
-pandas==2.3.3
-pillow @ file:///C:/miniconda3/conda-bld/pillow_1762528255883/work
-scikit-learn @ file:///C:/miniconda3/conda-bld/scikit-learn_1758619682247/work
-torch==2.13.0+cpu
-tqdm @ file:///C:/miniconda3/conda-bld/tqdm_1762863407729/work
-transformers==5.13.1
+albumentations
+matplotlib
+numpy
+opencv-python
+opencv-python-headless
+pandas
+pillow 
+scikit-learn 
+torch
+torchvision
+tqdm
+transformers
 pytest
+sys
+pathlib
+logging
+json

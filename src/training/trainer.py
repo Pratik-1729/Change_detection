@@ -2,7 +2,10 @@ from pathlib import Path
 import sys
 from typing import Dict
 
-ROOT = Path(__file__).resolve().parents[1]
+# Ensure project root is on sys.path so `import src...` works when running
+# this file directly. trainers live in `src/training`, so parents[2] is the
+# workspace root containing the `src` package.
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 import torch
