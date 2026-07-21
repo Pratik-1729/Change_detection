@@ -2,9 +2,6 @@ from pathlib import Path
 import sys
 from typing import Dict
 
-# Ensure project root is on sys.path so `import src...` works when running
-# this file directly. trainers live in `src/training`, so parents[2] is the
-# workspace root containing the `src` package.
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -197,24 +194,79 @@ class Trainer:
               self,
               epoch: int,
               val_miou: float,
+              filename: str,
     ):
          checkpoint = {
               "epoch": epoch,
               "model_state_dict": self.model.state_dict(),
               "optimizer_state_dict":self.optimizer.state_dict(),
+              "scheduler_state_dict":(
+               self.scheduler.state_dict()
+               if self.self.scheduler is not None
+               else None
+              ),
               "best_miou": val_miou,
+              "history" : self.history,
          }
+         save_path = self.checkpoint_dir/filename
          torch.save(
               checkpoint,
-              self.checkpoint_dir/"best_model.pth",
+              save_path,
          )
-         logger.info("Best model saved to %s", str(self.checkpoint_dir/"best_model.pth"))
-    
+         logger.info("Best model saved to %s", str(save_path)) 
+
+    def load_checkpoint(
+              self,
+              filename: str = "last_model.pth"
+    ):
+         checkpoint_path = self.checkpoint_dir/ filename
+         if not checkpoint_path.exists():
+              logger.info(f"no checkpoint found at{checkpoint_path}")
+              return 0
+         checkpoint = torch.load(
+              checkpoint_path,
+              map_location=self.device,
+         )
+
+         self.model.load_state_dict(
+              checkpoint["model_state_dict"]
+         )
+
+         self.optimizer.load_state_dict(
+              checkpoint["optimizer_state_dict"]
+         )
+
+         if(
+              self.scheduler is not None 
+              and checkpoint["scheduler_state_dict"] is not None
+         ):
+              self.scheduler.load_state_dict(
+              checkpoint["scheduler_state_dict"])
+         
+         self.best_miou = checkpoint["best_miou"]
+         self.history = checkpoint["history"]
+
+         start_epoch = checkpoint["epoch"] + 1
+
+         logger.info("="*60)
+         logger.info("Checkpoint loaded Successfully")
+         logger.info(f"Resuming from epoch{start_epoch}")
+         logger.info(f"Best Miou : {self.best_miou:.4f}")
+         logger.info("="*60)
+
+         return start_epoch
+          
+              
     def fit(
               self,
               epochs: int,
+              resume: bool =  False,
     ):
-         for epoch in range(epochs):
+         start_epoch = 0
+         if resume:
+              start_epoch = self.load_checkpoint()
+
+         for epoch in range(start_epoch,epochs):
               logger.info("%s", "\n" + "=" * 70)
               logger.info("Epoch %s/%s", epoch + 1, epochs)
               logger.info("%s", "=" * 70)
@@ -250,12 +302,19 @@ class Trainer:
               logger.info("Train pixel_accuracy : %.4f", train_results['pixel_accuracy'])
               logger.info("val pixel_accuracy : %.4f", val_results['pixel_accuracy'])
 
+              self.save_checkpoint(
+                   epoch=epoch,
+                   val_miou=val_results["miou"],
+                   filename="last_model.pth",
+              )
+
               if val_results["miou"] > self.best_miou:
                    self.best_miou = val_results["miou"]
                    self.counter = 0
                    self.save_checkpoint(
-                        epoch,
-                        self.best_miou,
+                        epoch = epoch,
+                        val_miou=self.best_miou,
+                        filename="best_model.pth",
                    )
               else:
                    self.counter += 1

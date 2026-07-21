@@ -72,7 +72,7 @@ def main():
             device=device,
         )
 
-        history = trainer.fit(epochs=EPOCHS)
+        history = trainer.fit(epochs=EPOCHS,resume=True,)
         logger.info("Training finished. History keys: %s", list(history.keys()))
     except KeyboardInterrupt:
         logger.warning("Training interrupted by user (KeyboardInterrupt). Exiting.")
