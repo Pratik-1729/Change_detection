@@ -202,7 +202,7 @@ class Trainer:
               "optimizer_state_dict":self.optimizer.state_dict(),
               "scheduler_state_dict":(
                self.scheduler.state_dict()
-               if self.self.scheduler is not None
+               if self.scheduler is not None
                else None
               ),
               "best_miou": val_miou,
